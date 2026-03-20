@@ -26,8 +26,8 @@ Roles asignados (Equipo Proveedor):
 
 - Scrum Master: Zayas Ana Florencia (Proveedor) – Facilita ceremonias y elimina impedimentos.
 - Desarrollador Fullstack: Agazzoni Fátima (Proveedor) – Backend Validación de requerimientos .
-- Desarrollador UX : Vanina Leguizamon (Proveedor) – Experiencia de Usuario .
-- Tester/QA: Luis Martínez (Proveedor) – Pruebas unitarias y UAT.
+- Desarrollador UX : Leguizamon  Vanina(Proveedor) – Experiencia de Usuario .
+- Tester/QA: Bedoya Brenda (Proveedor) – Pruebas unitarias y UAT.
 
 Acuerdos de trabajo del equipo:
 - Horarios: Daily Scrum 9:00 AM (-03), sprints Lunes-Domingo.
