@@ -24,7 +24,7 @@ Scrum se adapta perfectamente al stack técnico propuesto (React para frontend r
 
 Roles asignados (Equipo Proveedor):
 
-- Scrum Master:Zayas Ana Florencia (Proveedor) – Facilita ceremonias y elimina impedimentos.
+- Scrum Master: Zayas Ana Florencia (Proveedor) – Facilita ceremonias y elimina impedimentos.
 - Desarrollador Fullstack: Agazzoni Fátima (Proveedor) – Backend Validación de requerimientos .
 - Desarrollador UX : Vanina Leguizamon (Proveedor) – Experiencia de Usuario .
 - Tester/QA: Luis Martínez (Proveedor) – Pruebas unitarias y UAT.
