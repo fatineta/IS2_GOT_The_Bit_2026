@@ -7,8 +7,7 @@ GOT: The Bit
 **ROLES:**
 | Nombre           | Rol          | GitHub       |
 |------------------|--------------|--------------|
-| Ana Florencia    | Scrum Master | @AnaFlorencia|
-| Zayas            |              | Zayas        |
+| Ana Florencia Zayas| Scrum Master| @AnaFlorenciaZayas|
 | Fátima Agazzoni  | Dev Lead     | @fatineta    |
 | Brenda Bedoya    | QA Lead      | @brenbedoya  |
 | Vanina Leguizamón| UX Lead      | @mag-3e      |
