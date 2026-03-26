@@ -1,0 +1,10 @@
+Matriz de Riesgo del Sistema de Stock 
+
+| N° | Nombre de Riesgos | Descripción del Riesgo | Categoría | Probabilidad | Impacto |
+| :---- | :---: | ----- | :---: | :---: | :---: |
+| 1 | Retrasos en el desarrollo | Riesgo de que el equipo no logre completar las tareas planificadas dentro del tiempo establecido en cada sprint. Esto puede deberse a una mala estimación del esfuerzo requerido, imprevistos técnicos o una distribución ineficiente de las tareas. Como consecuencia, se pueden acumular actividades pendientes, afectando el cumplimiento de los objetivos del proyecto y la entrega final. | De equipo | **Alto** | **Alto** |
+| 2 | Problemas de integración | Durante el desarrollo, pueden surgir inconvenientes al integrar los distintos componentes del sistema, como el frontend, backend y la base de datos. Esto puede generar errores en la comunicación entre módulos, fallas en el funcionamiento general o inconsistencias en los datos, dificultando la correcta operación del sistema. | Técnico | **Alto** | **Alto** |
+| 3 | Problemas de usabilidad | El sistema podría presentar una interfaz poco intuitiva o difícil de utilizar para los empleados de la ferretería. Esto puede provocar errores en el uso, pérdida de tiempo en las tareas diarias o incluso rechazo del sistema por parte de los usuarios, afectando la adopción de la solución. | Técnico | **Medio** | **Medio** |
+| 4 | Problemas en la Lógica de Stock | Existe el riesgo de que la lógica encargada de gestionar el stock (entradas y salidas) presente errores, como cálculos incorrectos, duplicación de registros o permitir valores negativos. Esto impacta directamente en la confiabilidad del sistema, ya que el control de inventario es la funcionalidad principal del proyecto. | Técnico | **Medio** | **Alto** |
+| 5 | Pérdida de datos | Puede ocurrir la pérdida de información almacenada en el sistema, como productos o movimientos de stock, debido a fallos en la base de datos, errores en el código o falta de mecanismos de respaldo. Esto afectaría gravemente la integridad del sistema y la confianza del usuario en la herramienta. | Técnico | **Bajo** | **Alto** |
+
