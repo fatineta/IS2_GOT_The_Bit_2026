@@ -1,1 +1,13 @@
+Registro de uso de IA
+
+Entrada 001
+Fecha: 02/03/2026
+Integrante: Fátima Agazzoni
+Herramienta: DeepSeek
+Qué se generó: Estructura inicial de las clases Producto y MoviminetoStock.
+Qué modificamos:Adaptamos los nombres de atributos al esquema SQL del Dev Leaad.
+Justificación: Usamos IA para acelerar el boilerplate, pero la lógica la escribimos nosotros.
+
+Entrada 002
+
 
