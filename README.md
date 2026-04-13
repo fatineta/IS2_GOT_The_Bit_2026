@@ -3,7 +3,7 @@
 **ROLES:**
 | Nombre           | Rol          | GitHub       |
 |------------------|--------------|--------------|
-||Brenda Bedoya    |Scrum Master  |@brenbedoya   |
+|Brenda Bedoya    |Scrum Master  |@brenbedoya   |
 | Fátima Agazzoni  | Dev Lead | @fatineta    |
 | Ana Florencia Zayas| QA Lead|@AnaFlorenciaZayas |
 | Vanina Leguizamón| UX Lead     | @mag-3e      |
