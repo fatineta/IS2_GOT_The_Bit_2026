@@ -35,3 +35,43 @@ Se utilizó IA para acelerar la generación del boilerplate, mientras que la ló
 
 
 ---
+## Eje 3: Análisis de estándares HCI y sistemas críticos
+
+### Herramienta utilizada
+ChatGPT
+
+---
+
+### Tipo de uso
+Asistencia en formateo y estructuración de contenido en Markdown para GitHub.
+
+---
+
+### Prompts utilizados
+- "podrías aplicar un formato de letra apto para un documento dentro de un repositorio de github?"
+- "realizar lo mismo sin parafrasear nada"
+- "formatear el texto en markdown profesional sin modificar contenido"
+
+---
+
+### Alcance del uso de IA
+
+La herramienta fue utilizada exclusivamente para:
+
+- Dar formato en Markdown al contenido
+- Mejorar la estructura visual (títulos, tablas, secciones)
+- Adaptar el texto para correcta visualización en GitHub
+
+No se utilizó IA para:
+
+- Generar contenido conceptual
+- Modificar redacción original
+- Agregar ideas o interpretaciones
+
+Todo el contenido teórico, análisis y redacción fue elaborado de forma propia, manteniendo fidelidad total en los textos formateados.
+
+---
+
+### Observaciones
+
+El uso de IA permitió mejorar la presentación del documento, facilitando su lectura y alineándolo con buenas prácticas de documentación técnica en repositorios GitHub.
