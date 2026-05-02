@@ -46,19 +46,19 @@ type AlertaStock struct {
 }
 
 type Movimiento struct {
-	Tipo        string    `json:"tipo"`
-	Cantidad    int       `json:"cantidad"`
-	StockAntes  int       `json:"stock_antes"`
-	StockDespues int      `json:"stock_despues"`
-	Fecha       time.Time `json:"fecha"`
-	Comentario  string    `json:"comentario"`
+	Tipo         string    `json:"tipo"`
+	Cantidad     int       `json:"cantidad"`
+	StockAntes   int       `json:"stock_antes"`
+	StockDespues int       `json:"stock_despues"`
+	Fecha        time.Time `json:"fecha"`
+	Comentario   string    `json:"comentario"`
 }
 
 type DashboardStats struct {
-	TotalProductos  int `json:"total_productos"`
-	StockCritico    int `json:"stock_critico"`
-	StockBajo       int `json:"stock_bajo"`
-	MovimientosHoy  int `json:"movimientos_hoy"`
+	TotalProductos int `json:"total_productos"`
+	StockCritico   int `json:"stock_critico"`
+	StockBajo      int `json:"stock_bajo"`
+	MovimientosHoy int `json:"movimientos_hoy"`
 }
 
 type DetallePedido struct {
@@ -70,15 +70,15 @@ type DetallePedido struct {
 }
 
 type Pedido struct {
-	IDVenta      int64           `json:"id_venta"`
-	NumeroVenta  int             `json:"numero_venta"`
-	Total        float64         `json:"total"`
-	Fecha        time.Time       `json:"fecha"`
-	VendedorID   int64           `json:"vendedor_id"`
-	ClienteID    int64           `json:"cliente_id"`
-	EstadoID     int64           `json:"estado_id"`
-	EstadoActual EstadoPedido    `json:"-"`
-	EstadoNombre string          `json:"estado"`
+	IDVenta      int64          `json:"id_venta"`
+	NumeroVenta  int            `json:"numero_venta"`
+	Total        float64        `json:"total"`
+	Fecha        time.Time      `json:"fecha"`
+	VendedorID   int64          `json:"vendedor_id"`
+	ClienteID    int64          `json:"cliente_id"`
+	EstadoID     int64          `json:"estado_id"`
+	EstadoActual EstadoPedido   `json:"-"`
+	EstadoNombre string         `json:"estado"`
 	Items        []DetallePedido `json:"items"`
 }
 
@@ -116,8 +116,8 @@ func (s *PendienteState) Procesar(pedido *Pedido) error {
 	ActualizarEstadoPedido(pedido.IDVenta, 2)
 	return nil
 }
-func (s *PendienteState) Pagar(p *Pedido) error        { return errors.New("primero debe procesar el pedido") }
-func (s *PendienteState) Entregar(p *Pedido) error     { return errors.New("pedido no procesado") }
+func (s *PendienteState) Pagar(p *Pedido) error         { return errors.New("primero debe procesar el pedido") }
+func (s *PendienteState) Entregar(p *Pedido) error      { return errors.New("pedido no procesado") }
 func (s *PendienteState) EnviarAlmacen(p *Pedido) error { return errors.New("primero confirme el pedido") }
 func (s *PendienteState) Cancelar(pedido *Pedido) error {
 	pedido.EstadoActual = &CanceladoState{}
@@ -200,7 +200,6 @@ func (s *CanceladoState) Cancelar(p *Pedido) error       { return errors.New("ya
 func (s *CanceladoState) EnviarAlmacen(p *Pedido) error  { return errors.New("pedido cancelado") }
 func (s *CanceladoState) GetNombre() string               { return "CANCELADO" }
 
-// Cache de pedidos activos en memoria (en producción usaría Redis o persistencia)
 var pedidosActivos = map[int64]*Pedido{}
 
 func estadoDesdeNombre(nombre string) EstadoPedido {
@@ -337,9 +336,15 @@ func nullInt(i int64) interface{} {
 
 func cors(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// Permite tanto el servidor de desarrollo de Vite como producción
+		origin := r.Header.Get("Origin")
+		if origin == "http://localhost:5173" || origin == "http://localhost:4173" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
@@ -370,7 +375,6 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
 		WHERE estado_id = 1 AND stock_actual > stock_minimo / 2 AND stock_actual <= stock_minimo`).Scan(&stats.StockBajo)
 	db.QueryRow(`SELECT COUNT(*) FROM tblmovimientos_stock WHERE DATE(fecha) = CURDATE()`).Scan(&stats.MovimientosHoy)
 
-	// Productos con stock crítico para la tabla del dashboard
 	rows, err := db.Query(`
 		SELECT idProducto, nombre, stock_actual, stock_minimo
 		FROM tblproductos
@@ -393,6 +397,9 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
 		var p ProdAlerta
 		rows.Scan(&p.ID, &p.Nombre, &p.StockActual, &p.StockMinimo)
 		criticos = append(criticos, p)
+	}
+	if criticos == nil {
+		criticos = []ProdAlerta{}
 	}
 
 	jsonOK(w, map[string]interface{}{
@@ -440,7 +447,7 @@ func handleCrearProducto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if p.UnidadMedida == "" {
-		p.UnidadMedida = "unidades"
+		p.UnidadMedida = "u."
 	}
 	if p.CategoriaID == 0 {
 		p.CategoriaID = 1
@@ -461,7 +468,7 @@ func handleCrearProducto(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, p)
 }
 
-// PUT /api/productos/{id}/stock
+// PUT /api/productos/stock?id=X
 func handleMovimientoStock(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -471,8 +478,9 @@ func handleMovimientoStock(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body struct {
-		Tipo     string `json:"tipo"`     // "ENTRADA" | "SALIDA" | "AJUSTE"
-		Cantidad int    `json:"cantidad"`
+		Tipo      string `json:"tipo"`      // "ENTRADA" | "SALIDA" | "AJUSTE"
+		Cantidad  int    `json:"cantidad"`
+		Comentario string `json:"comentario"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		jsonErr(w, "JSON inválido", 400)
@@ -524,14 +532,14 @@ func handleMovimientoStock(w http.ResponseWriter, r *http.Request) {
 	alertaGenerada := nuevoStock <= p.PuntoReorden && p.StockActual > p.PuntoReorden
 
 	jsonOK(w, map[string]interface{}{
-		"stock_anterior": p.StockActual,
-		"stock_nuevo":    nuevoStock,
-		"alerta_generada": alertaGenerada,
-		"mensaje":        fmt.Sprintf("Stock actualizado de %d a %d", p.StockActual, nuevoStock),
+		"stock_anterior":   p.StockActual,
+		"stock_nuevo":      nuevoStock,
+		"alerta_generada":  alertaGenerada,
+		"mensaje":          fmt.Sprintf("Stock actualizado de %d a %d", p.StockActual, nuevoStock),
 	})
 }
 
-// PUT /api/productos/{id}/umbrales
+// PUT /api/productos/umbrales?id=X
 func handleActualizarUmbrales(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -582,7 +590,7 @@ func handleListarAlertas(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, alertas)
 }
 
-// POST /api/alertas/{id}/procesar
+// POST /api/alertas/procesar?id=X
 func handleProcesarAlerta(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Query().Get("id")
 	id, err := strconv.Atoi(idStr)
@@ -592,22 +600,20 @@ func handleProcesarAlerta(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body struct {
-		Accion   string `json:"accion"`   // "reabastecer" | "ignorar"
-		Cantidad int    `json:"cantidad"` // solo para reabastecer
+		Accion   string `json:"accion"`
+		Cantidad int    `json:"cantidad"`
 	}
 	json.NewDecoder(r.Body).Decode(&body)
 
 	if body.Accion == "reabastecer" {
-		// obtener producto_id de la alerta
 		var prodID int64
 		var stockActual int
 		db.QueryRow("SELECT producto_id, stock_actual FROM tblalertas_stock WHERE idAlerta = ?", id).
 			Scan(&prodID, &stockActual)
 
 		if body.Cantidad <= 0 {
-			// calcular sugerido
 			var stockMax int
-			db.QueryRow("SELECT COALESCE(stock_maximo,0), punto_reorden FROM tblproductos WHERE idProducto = ?", prodID).
+			db.QueryRow("SELECT COALESCE(stock_maximo,0) FROM tblproductos WHERE idProducto = ?", prodID).
 				Scan(&stockMax)
 			body.Cantidad = stockMax - stockActual
 			if body.Cantidad <= 0 {
@@ -676,7 +682,6 @@ func handleCrearPedido(w http.ResponseWriter, r *http.Request) {
 		body.ClienteID = 2
 	}
 
-	// enriquecer items con nombre y precio si faltan
 	for i := range body.Items {
 		var p Producto
 		err := db.QueryRow("SELECT nombre, precio_venta FROM tblproductos WHERE idProducto = ?",
@@ -723,7 +728,7 @@ func handleCrearPedido(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, pedido)
 }
 
-// POST /api/pedidos/{id}/accion
+// POST /api/pedidos/accion?id=X
 func handleAccionPedido(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -733,7 +738,7 @@ func handleAccionPedido(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body struct {
-		Accion string `json:"accion"` // procesar | pagar | almacen | entregar | cancelar
+		Accion string `json:"accion"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		jsonErr(w, "JSON inválido", 400)
@@ -742,18 +747,24 @@ func handleAccionPedido(w http.ResponseWriter, r *http.Request) {
 
 	pedido, ok := pedidosActivos[id]
 	if !ok {
-		// reconstruir desde DB si no está en memoria
 		var estadoID int64
-		var items []DetallePedido
-		err := db.QueryRow(`SELECT idVenta, numero_venta, total, vendedor_id, cliente_id, estado_id 
+		var numeroVenta int
+		var total float64
+		var vendedorID, clienteID int64
+		var fecha time.Time
+		err := db.QueryRow(`SELECT idVenta, numero_venta, total, vendedor_id, cliente_id, estado_id, fecha
 			FROM tblventas WHERE idVenta = ?`, id).Scan(
-			&id, &id, &id, &id, &id, &estadoID)
+			&id, &numeroVenta, &total, &vendedorID, &clienteID, &estadoID, &fecha)
 		if err != nil {
 			jsonErr(w, "Pedido no encontrado", 404)
 			return
 		}
 		nombre := map[int64]string{1: "PENDIENTE", 2: "CONFIRMADO", 3: "PAGADO", 4: "EN_ALMACEN", 5: "CANCELADO"}[estadoID]
-		pedido = &Pedido{IDVenta: id, EstadoActual: estadoDesdeNombre(nombre), EstadoNombre: nombre, Items: items}
+		pedido = &Pedido{
+			IDVenta: id, NumeroVenta: numeroVenta, Total: total,
+			Fecha: fecha, VendedorID: vendedorID, ClienteID: clienteID,
+			EstadoActual: estadoDesdeNombre(nombre), EstadoNombre: nombre,
+		}
 		pedidosActivos[id] = pedido
 	}
 
@@ -807,7 +818,8 @@ func handleReposicion(w http.ResponseWriter, r *http.Request) {
 	var items []ItemRepo
 	for rows.Next() {
 		var it ItemRepo
-		rows.Scan(&it.ID, &it.Nombre, &it.StockActual, &it.StockMinimo, &it.StockMaximo, &it.Faltante)
+		var puntoReorden int
+		rows.Scan(&it.ID, &it.Nombre, &it.StockActual, &it.StockMinimo, &it.StockMaximo, &puntoReorden)
 		it.Faltante = it.StockMaximo - it.StockActual
 		if it.Faltante < 0 {
 			it.Faltante = it.StockMinimo * 2
@@ -854,14 +866,24 @@ func main() {
 	}
 	log.Println("Conectado a la base de datos")
 
-	// Servir el HTML estático
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
-	})
+	// ── Archivos estáticos del frontend (generados con npm run build) ──
+	// En desarrollo React corre en :5173 y Go en :8080 por separado.
+	// En producción: primero correr "npm run build" en la carpeta del frontend,
+	// luego copiar la carpeta dist/ junto a este main.go.
+	fs := http.FileServer(http.Dir("./dist"))
+http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    path := "./dist" + r.URL.Path
+    _, statErr := os.Stat(path)
+    if os.IsNotExist(statErr) || r.URL.Path == "/" {
+        http.ServeFile(w, r, "./dist/index.html")
+        return
+    }
+    fs.ServeHTTP(w, r)
+})
 
-	// API endpoints
-	http.HandleFunc("/api/dashboard",         cors(handleDashboard))
-	http.HandleFunc("/api/productos",          cors(func(w http.ResponseWriter, r *http.Request) {
+	// ── API endpoints ──
+	http.HandleFunc("/api/dashboard", cors(handleDashboard))
+	http.HandleFunc("/api/productos", cors(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			handleCrearProducto(w, r)
 		} else {
@@ -873,13 +895,13 @@ func main() {
 	http.HandleFunc("/api/alertas",            cors(handleListarAlertas))
 	http.HandleFunc("/api/alertas/procesar",   cors(handleProcesarAlerta))
 	http.HandleFunc("/api/movimientos",        cors(handleMovimientos))
-	http.HandleFunc("/api/pedidos",            cors(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/pedidos", cors(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			handleCrearPedido(w, r)
 		}
 	}))
-	http.HandleFunc("/api/pedidos/accion",     cors(handleAccionPedido))
-	http.HandleFunc("/api/reposicion",         cors(handleReposicion))
+	http.HandleFunc("/api/pedidos/accion", cors(handleAccionPedido))
+	http.HandleFunc("/api/reposicion",     cors(handleReposicion))
 
 	log.Printf("Servidor corriendo en http://localhost:%s\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
