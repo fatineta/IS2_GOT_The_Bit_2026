@@ -17,3 +17,6 @@ https://github.com/users/fatineta/projects/5/views/1
 
 # ENLACE AL VIDEO PRUEBAS UNITARIAS 
 https://youtu.be/YKulRJL2qu0
+
+#DIAGRAMA DE ARQUITECTURA
+<img width="1387" height="855" alt="WhatsApp Image 2026-05-07 at 19 22 35" src="https://github.com/user-attachments/assets/93595e07-8510-4931-ba22-ef199df78c39" />
