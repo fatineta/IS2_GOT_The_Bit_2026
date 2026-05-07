@@ -14,3 +14,6 @@
 
 # ENLACE AL TABLERO KANBAN
 https://github.com/users/fatineta/projects/5/views/1
+
+# ENLACE AL VIDEO PRUEBAS UNITARIAS 
+https://youtu.be/YKulRJL2qu0
