@@ -6,7 +6,7 @@
 |---|---|
 | Proyecto | Sistema de Gestión de Ferretería |
 | Lenguaje | Go 1.22 |
-| Archivo de pruebas | `tests/unit/ferreteria_test.go` |
+| Archivo de pruebas | `test/unit/ferreteria_test.go` |
 | Total de casos | 21 |
 | Funciones cubiertas | 5 (`calcularNuevoStock`, `calcularUrgencia`, `validarProducto`, `estadoDesdeNombre`, `calcularFaltante`) + Patrón State (`EstadoPedido`) |
 
@@ -21,11 +21,32 @@ de forma aislada.
 
 Se aplican dos técnicas:
 
-- **Partición de equivalencia**: se agrupa el dominio de entrada en clases
-  cuyos valores se comportan de igual forma. Se elige un representante de
-  cada clase.
-- **Análisis de valores límite**: se prueban los extremos de cada clase
-  (mínimo, máximo, justo debajo/arriba del umbral).
+- **Partición de equivalencia**: se agrupa el dominio de entrada en clases cuyos valores se comportan de igual forma. Se elige un representante de cada clase.
+- **Análisis de valores límite**: se prueban los extremos de cada clase (mínimo, máximo, justo debajo/arriba del umbral).
+
+---
+
+## Marco teórico
+
+### ¿Qué es una clase de equivalencia y cómo se aplica para diseñar casos de prueba?
+
+La clase de equivalencia es una técnica de diseño de pruebas de caja negra que consiste en dividir el conjunto total de posibles datos de entrada de un sistema en particiones lógicas. La premisa fundamental es que el software se comportará de la misma manera para cualquier valor que pertenezca a una misma partición, permitiendo que un solo dato represente a todo el grupo.
+
+Para diseñar los casos de prueba, se identifican tanto las **clases válidas** (datos que el sistema debe procesar exitosamente) como las **clases inválidas** (datos erróneos que el sistema debe rechazar o manejar mediante excepciones). Al seleccionar un representante de cada clase, se logra una cobertura de pruebas eficiente y exhaustiva, reduciendo la redundancia de datos y optimizando el tiempo de ejecución de la suite de tests.
+
+---
+
+### ¿Qué es un valor límite y cómo se aplica para encontrar defectos?
+
+El valor límite es una técnica de diseño de pruebas de caja negra que se enfoca en los extremos o fronteras de las clases de equivalencia. Su importancia radica en que, estadísticamente, la mayor cantidad de errores de software se concentran en los puntos donde el comportamiento del sistema cambia, habitualmente debido a fallos en la implementación de operadores relacionales (como usar `<` en lugar de `<=`).
+
+Para identificar fallos de manera efectiva, esta técnica no se limita a probar el valor exacto del límite, sino que evalúa una "triangulación" en la frontera:
+
+- **El valor límite exacto:** para verificar que el sistema cambie de estado en el punto preciso definido por la regla de negocio.
+- **El valor inmediatamente anterior (Límite - 1):** para asegurar que el sistema mantiene el comportamiento previo justo antes de la transición.
+- **El valor inmediatamente posterior (Límite + 1):** para confirmar que la nueva lógica se activa correctamente tras superar la frontera.
+
+Al estresar estos bordes, el desarrollador puede detectar errores de "desplazamiento por uno" (*off-by-one errors*) que las pruebas generales suelen pasar por alto, garantizando que restricciones críticas como umbrales de stock, límites de crédito o capacidades de almacenamiento operen con precisión matemática. En el contexto del proyecto de la ferretería, esto asegura, por ejemplo, que una alerta de reposición se dispare exactamente cuando el `stock_actual` iguala al `stock_minimo`.
 
 ---
 
@@ -46,8 +67,7 @@ Reproduce la lógica del `handleMovimientoStock` del sistema original.
 | **Resultado esperado** | `nuevoStock=15`, `error=nil` |
 | **Nombre del test** | `TestCalcularNuevoStock_EntradaValida` |
 
-Clase de equivalencia válida: `tipo = "ENTRADA"` con cantidad positiva suma
-correctamente al stock.
+Clase de equivalencia válida: `tipo = "ENTRADA"` con cantidad positiva suma correctamente al stock.
 
 ---
 
@@ -60,8 +80,7 @@ correctamente al stock.
 | **Resultado esperado** | `nuevoStock=0`, `error=nil` |
 | **Nombre del test** | `TestCalcularNuevoStock_SalidaExactaAlStock` |
 
-Límite inferior permitido: la cantidad retirada es exactamente igual al stock.
-El resultado debe ser 0 sin error.
+Límite inferior permitido: la cantidad retirada es exactamente igual al stock. El resultado debe ser 0 sin error.
 
 ---
 
@@ -87,8 +106,7 @@ Un valor justo por encima del límite permitido debe producir error.
 | **Resultado esperado** | `nuevoStock=30`, `error=nil` |
 | **Nombre del test** | `TestCalcularNuevoStock_AjusteValido` |
 
-Clase válida: cualquier valor de ajuste reemplaza directamente el stock
-independientemente del valor anterior.
+Clase válida: cualquier valor de ajuste reemplaza directamente el stock independientemente del valor anterior.
 
 ---
 
@@ -120,8 +138,7 @@ Reproduce la clasificación de urgencia del `handleReposicion`.
 | **Resultado esperado** | `"CRITICO"` |
 | **Nombre del test** | `TestCalcularUrgencia_StockCero` |
 
-El valor 0 es el límite absoluto inferior: representa ausencia total de stock,
-caso más crítico posible.
+El valor 0 es el límite absoluto inferior: representa ausencia total de stock, caso más crítico posible.
 
 ---
 
@@ -134,8 +151,7 @@ caso más crítico posible.
 | **Resultado esperado** | `"ALTA"` |
 | **Nombre del test** | `TestCalcularUrgencia_StockEnLimiteAlta` |
 
-El umbral exacto `stock <= stockMinimo/2` clasifica como `ALTA`.
-Se prueba el valor en el límite.
+El umbral exacto `stock <= stockMinimo/2` clasifica como `ALTA`. Se prueba el valor en el límite.
 
 ---
 
@@ -344,7 +360,7 @@ Límite especial: cuando la diferencia es negativa se aplica la fórmula alterna
 ## Ejecución
 
 ```bash
-cd tests/unit
+cd test/unit
 go test ./... -v
 ```
 
@@ -357,3 +373,60 @@ Salida esperada: todos los tests con estado `PASS`.
 PASS
 ok      ferreteria_tests    0.002s
 ```
+
+---
+
+## Diseño Conceptual de Pruebas de Integración y Mocks
+
+Las pruebas unitarias validadas en las secciones anteriores cubren la lógica de negocio pura de forma aislada. Sin embargo, existe una capa de comportamiento que sólo puede verificarse cuando los componentes interactúan entre sí: la integración entre la lógica de negocio, la capa de persistencia y el patrón Observer. Esta sección presenta el diseño conceptual de dicho nivel de pruebas.
+
+---
+
+### Limitación de las pruebas unitarias actuales — Punto de partida para la siguiente etapa de testeo
+
+Las funciones extraídas para las pruebas unitarias no invocan la base de datos. Esto es intencional para las pruebas unitarias, pero significa que los siguientes escenarios no están cubiertos:
+
+- Que al ejecutar `SetStockActual()` con un stock inferior al punto de reorden, el Observer notifique correctamente y se persista una alerta en la tabla `tblalertas_stock`.
+- Que el handler `handleMovimientoStock` rechace una SALIDA cuando el stock real en MySQL es insuficiente.
+- Que el flujo completo de un pedido (creación → confirmación → pago → almacén → entrega) actualice correctamente todas las tablas relacionadas.
+
+---
+
+### Estrategia de mocks mediante interfaces
+
+En Go, la forma idiomática de inyectar dependencias testeables es mediante interfaces. En lugar de que las funciones de negocio llamen directamente a `db.QueryRow(...)`, se define una interfaz de repositorio que abstrae el acceso a datos:
+
+```go
+// Interfaz que abstrae el acceso a datos de stock
+type StockRepository interface {
+    GetStock(productoID int64) (int, error)
+    ActualizarStock(productoID int64, nuevoStock int) error
+    RegistrarMovimiento(prodID int64, anterior, nuevo int, tipo string) error
+    RegistrarAlerta(prodID int64, stock, puntoReorden int) error
+}
+
+// Implementación real (usa MySQL)
+type MySQLStockRepository struct{ db *sql.DB }
+
+// Implementación mock (para tests, en memoria)
+type MockStockRepository struct {
+    StockSimulado    map[int64]int
+    AlertasGeneradas []int64
+}
+```
+
+Con este diseño, en producción se inyecta `MySQLStockRepository` y en los tests de integración se inyecta `MockStockRepository`, eliminando la necesidad de una base de datos real sin perder cobertura de los flujos completos.
+
+---
+
+### Escenarios de integración planificados
+
+Los siguientes escenarios serían cubiertos en una suite de pruebas de integración:
+
+| ID | Escenario | Componentes involucrados | Resultado esperado |
+|---|---|---|---|
+| TI-01 | SALIDA con stock suficiente → Observer no dispara alerta | `calcularNuevoStock` + MockRepo + Observer | Stock actualizado, 0 alertas |
+| TI-02 | SALIDA que cruza el punto de reorden → Observer registra alerta | `SetStockActual` + Observer + MockRepo | Stock actualizado + 1 alerta generada |
+| TI-03 | Flujo completo de pedido PENDIENTE → ENTREGADO | Todos los estados del patrón State + MockRepo | Estado final ENTREGADO, stock reducido |
+| TI-04 | Cancelación de pedido EN_ALMACEN → stock no se modifica | `EnAlmacenState.Cancelar` + MockRepo | Estado CANCELADO, stock sin cambios |
+| TI-05 | Crear producto sin nombre → error 400 en el handler | `handleCrearProducto` + MockRepo | HTTP 400, mensaje de error correcto |
