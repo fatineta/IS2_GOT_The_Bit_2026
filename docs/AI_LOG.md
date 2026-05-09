@@ -36,7 +36,7 @@ Se utilizó IA para acelerar la generación del boilerplate, mientras que la ló
  
 ### Entrada 003
 **Fecha:** 05/05/2026  
-**Integrante:** Fátima Agazzoni  
+**Integrante:** Ana Zayas
 **Herramienta:** Claude (Anthropic)  
  
 **Qué se generó:**  
