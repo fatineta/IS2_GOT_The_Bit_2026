@@ -1,18 +1,3 @@
-# === PREGUNTAS DISPARADORAS ===
-
-## 1. Verificación vs Validación: Con sus palabras, ¿cuál es la diferencia clave? Pongan un ejemplo de cada una en su proyecto.
-
-## 2. Planificación de V&V: Si tuvieran que planificar la verificación y validación para el próximo sprint (1 semana), ¿qué dos actividades concretas incluirían?
-
-## 3. Inspecciones de software: ¿En qué se diferencia una inspección de código de una prueba automática? ¿Cuándo conviene más una que la otra?
-
-## 4. Análisis estático automatizado: Nombre una herramienta que conozcan (SonarQube, ESLint, Pylint, etc.) y digan qué tipo de error podría encontrar en su código sin ejecutarlo.
-
-## 5. Métodos formales de verificación: ¿Para qué tipo de sistemas son imprescindibles? ¿Por qué no se usan siempre?
-
-## 6. Reuniones de validación en Scrum/XP: ¿Qué rol cumple el Product Owner en una Sprint Review? ¿Cómo se relaciona con las pruebas automatizadas?
-
-
 La diferencia clave entre validar y verificar es que: verificar implica confirmar que el desarrollo del producto se está llevando a cabo correctamente; mientras que, validar implica que se está desarrollando el producto adecuado, siguiendo las especificaciones del cliente.
 
 ### Ejemplo de verificación
