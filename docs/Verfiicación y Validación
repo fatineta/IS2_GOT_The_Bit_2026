@@ -1,123 +1,205 @@
-# Preguntas Disparadoras – Proyecto Ferretería
+# === PREGUNTAS DISPARADORAS ===
 
 ## 1. Verificación vs Validación
 
-La diferencia clave es el objeto de la evaluación:
+La diferencia clave es el objetivo de la evaluación:
 
-- **Verificación:** pregunta *“¿estamos construyendo el sistema correctamente?”*  
-  Se enfoca en el código, diseño y funcionamiento técnico.
+- **Verificación** → pregunta: *“¿Estamos construyendo el sistema correctamente?”*  
+  Se enfoca en el código, el diseño y el cumplimiento de las reglas técnicas.
 
-- **Validación:** pregunta *“¿estamos construyendo el sistema correcto?”*  
+- **Validación** → pregunta: *“¿Estamos construyendo el sistema correcto?”*  
   Se enfoca en si el sistema realmente resuelve el problema del usuario.
 
-### Ejemplo de verificación en el proyecto
-Los 21 casos de prueba unitaria con TDD verifican que `calcularNuevoStock`, `calcularUrgencia` y el patrón State funcionan correctamente según las reglas definidas.
+### Ejemplo de verificación en nuestro proyecto
 
-Por ejemplo, el caso `TC-03` comprueba que el sistema rechaza una salida cuando la cantidad supera el stock disponible.
+Los **21 casos de prueba unitaria con TDD** verifican que funciones como `calcularNuevoStock`, `calcularUrgencia` y el patrón **State** funcionan correctamente según las reglas definidas.
 
-### Ejemplo de validación en el proyecto
-La auditoría de usabilidad basada en la norma ISO 9241-11 es un ejemplo de validación.
+Por ejemplo:
 
-Al pedirle a un usuario externo que registre una salida de productos en el sistema, se observó que:
+- **TC-03** verifica que el sistema rechace una salida cuando la cantidad supera el stock disponible.
+
+En este caso se verifica que el código cumple correctamente la lógica programada.
+
+### Ejemplo de validación en nuestro proyecto
+
+La **auditoría de usabilidad basada en ISO 9241-11** es un ejemplo de validación.
+
+Se pidió a un usuario externo realizar la tarea:
+
+> “Registrar salida de 5 unidades de Tornillo 6mm”.
+
+Gracias a esto se detectó que:
+
 - el flujo tenía 6 pasos en vez de 5,
 - y que las opciones de entrada/salida podían confundirse visualmente.
 
-El código funcionaba correctamente, pero la solución no era completamente adecuada para el usuario.
+El código funcionaba bien, pero la experiencia del usuario no era la ideal.
 
 ---
 
-## 2. Planificación de V&V para el próximo sprint
+# 2. Planificación de V&V para el próximo sprint
 
-### Actividad 1 – Verificación
-Implementar pruebas de integración con mocks (`MockStockRepository`) para verificar que:
-- el cálculo de stock,
-- las alertas,
-- y la persistencia
+## Actividad 1 – Verificación
 
-funcionen correctamente en conjunto.
+### Pruebas de integración con mocks (B3)
 
-### Actividad 2 – Validación
-Realizar una nueva prueba de usabilidad sobre el prototipo Figma corregido, incorporando:
+Implementar los 5 escenarios de integración (`TI-01` a `TI-05`) utilizando `MockStockRepository`.
+
+Estas pruebas verificarán:
+
+- la conexión entre `calcularNuevoStock`,
+- el patrón **Observer**,
+- y la persistencia de datos.
+
+Esto es verificación porque comprueba que los componentes funcionan correctamente entre sí.
+
+---
+
+## Actividad 2 – Validación
+
+### Prueba de usabilidad con el prototipo Figma corregido
+
+Aplicar las mejoras detectadas en la auditoría:
+
 - separación visual entre entrada y salida,
 - buscador con autocompletado.
 
-El objetivo es comprobar si el usuario puede completar el flujo de manera más rápida y sin errores.
+Luego realizar nuevamente la prueba con un usuario real para verificar si:
+
+- puede completar el flujo sin errores,
+- y en menos pasos.
+
+Esto corresponde a validación porque se evalúa si el sistema resulta útil y cómodo para el usuario final.
 
 ---
 
-## 3. Inspecciones de código vs pruebas automáticas
+# 3. Inspecciones de código vs pruebas automáticas
 
-Una inspección de código es una revisión manual del código sin ejecutarlo.  
-Una prueba automática ejecuta el programa y verifica si el resultado obtenido es el esperado.
+## Inspección de código
 
-### Diferencias principales
+Es una revisión manual del código fuente sin ejecutarlo.
 
-**Inspección de código**
-- Detecta código confuso o mal estructurado.
-- Encuentra malas prácticas o problemas de diseño.
-- Puede descubrir vulnerabilidades o código muerto.
+Permite detectar problemas como:
 
-**Pruebas automáticas**
-- Detectan errores de funcionamiento.
-- Permiten verificar rápidamente si el sistema sigue funcionando después de cambios.
-- Son ideales para regresiones.
+- código muerto,
+- nombres poco claros,
+- errores de diseño,
+- malas prácticas,
+- vulnerabilidades.
 
-### Ejemplo en el proyecto
-Antes de subir los tests generados con ayuda de IA, el equipo revisó manualmente que reflejaran correctamente la lógica del `main.go`. Eso fue una inspección.
+### Ejemplo en nuestro proyecto
 
-Por otro lado, GitHub Actions ejecuta automáticamente los 21 tests en cada push para comprobar que todo siga funcionando correctamente.
+Antes de incorporar los tests generados con ayuda de Claude, el equipo revisó manualmente que las funciones extraídas respetaran la lógica original de `main.go`.
 
 ---
 
-## 4. Análisis estático automatizado
+## Pruebas automáticas
 
-Una herramienta conocida es **ESLint**.
+Ejecutan el código con entradas específicas y verifican si el resultado obtenido es el esperado.
 
-Sirve para analizar código JavaScript sin ejecutarlo y puede detectar:
-- variables no utilizadas,
-- errores de sintaxis,
+Sirven para detectar errores de funcionamiento y regresiones.
+
+### Ejemplo en nuestro proyecto
+
+El pipeline de **GitHub Actions** ejecuta automáticamente los 21 tests en cada `push`.
+
+---
+
+## ¿Cuándo conviene cada una?
+
+### Conviene una inspección cuando:
+
+- el código es complejo,
+- hay cambios importantes de arquitectura,
+- se integra código externo,
+- se necesita revisar calidad y legibilidad.
+
+### Convienen pruebas automáticas cuando:
+
+- hay cambios frecuentes,
+- se necesita rapidez,
+- se quiere evitar romper funcionalidades existentes.
+
+Ambas técnicas se complementan:
+
+- la inspección encuentra problemas que los tests no detectan,
+- y los tests detectan errores que pueden pasar desapercibidos visualmente.
+
+---
+
+# 4. Análisis estático automatizado
+
+Una herramienta que utilizamos es **SonarQube**.
+
+Esta herramienta puede detectar errores sin ejecutar el programa, por ejemplo:
+
 - código duplicado,
-- malas prácticas de programación.
+- variables no utilizadas,
+- posibles `nil pointer`,
+- funciones demasiado complejas,
+- problemas de seguridad,
+- baja cobertura de tests.
 
-Por ejemplo, podría detectar una variable declarada en el frontend del sistema de la ferretería que nunca se utiliza.
+En nuestro proyecto podría detectar funciones con demasiadas responsabilidades o código repetido dentro de la gestión de stock.
 
 ---
 
-## 5. Métodos formales de verificación
+# 5. Métodos formales de verificación
 
-Los métodos formales son imprescindibles en sistemas críticos donde un error puede tener consecuencias graves o irreversibles, por ejemplo:
-- aviones,
-- marcapasos,
+Los métodos formales son imprescindibles en sistemas críticos donde un error puede generar consecuencias graves.
+
+## Ejemplos
+
+- sistemas aeronáuticos,
+- software médico,
 - centrales nucleares,
-- sistemas ferroviarios.
+- sistemas bancarios,
+- vehículos autónomos.
 
-Se utilizan para demostrar matemáticamente que el sistema funciona correctamente.
+Se utilizan porque permiten demostrar matemáticamente que el sistema cumple determinadas propiedades.
 
-### ¿Por qué no se usan siempre?
+---
+
+## ¿Por qué no se usan siempre?
 
 Porque:
-- son muy costosos,
-- requieren especialistas en lógica y matemática,
-- llevan mucho tiempo,
-- y no escalan fácilmente en sistemas grandes.
 
-En aplicaciones de negocio, como nuestro sistema de ferretería, un error puede generar problemas operativos, pero normalmente puede corregirse luego con una actualización.
+- requieren mucho tiempo,
+- son costosos,
+- necesitan conocimientos matemáticos avanzados,
+- y aumentan la complejidad del desarrollo.
+
+Por eso, en la mayoría de los proyectos comerciales se utilizan pruebas automatizadas e inspecciones en lugar de métodos formales completos.
 
 ---
 
-## 6. Reuniones de validación en Scrum/XP
+# 6. Reuniones de validación en Scrum/XP
 
-En una Sprint Review, el Product Owner (PO) verifica si el sistema realmente cumple las necesidades del negocio.
+## Rol del Product Owner en la Sprint Review
 
-En nuestro proyecto, el PO representaría al dueño de la ferretería y debería comprobar si:
-- las alertas de urgencia,
-- y el control de stock
+El **Product Owner** valida si las funcionalidades desarrolladas cumplen las necesidades del negocio y las expectativas del usuario.
 
-ayudan realmente a evitar faltantes de productos.
+Durante la Sprint Review:
 
-### Relación con las pruebas automatizadas
+- revisa el incremento desarrollado,
+- da feedback,
+- acepta o rechaza funcionalidades,
+- y propone mejoras para el próximo sprint.
 
-Las pruebas automatizadas no son revisadas directamente por el PO, pero le dan al equipo confianza de que el sistema funciona correctamente antes de presentarlo.
+---
 
-Los 21 tests ejecutados en GitHub Actions garantizan estabilidad técnica.  
-Si los tests fallaran, el incremento no debería presentarse en la Sprint Review.
+## Relación con las pruebas automatizadas
+
+Las pruebas automatizadas verifican técnicamente que el sistema funcione correctamente.
+
+El Product Owner, en cambio, valida si ese funcionamiento realmente aporta valor al usuario.
+
+Por ejemplo:
+
+- los tests pueden indicar que el cálculo de stock es correcto,
+- pero el Product Owner puede detectar que el flujo es confuso para el empleado de la ferretería.
+
+Por eso:
+
+- las pruebas automatizadas ayudan a la **verificación**,
+- mientras que la Sprint Review ayuda a la **validación**.
