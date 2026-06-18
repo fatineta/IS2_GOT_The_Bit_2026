@@ -1,84 +1,96 @@
-# Mejoras Realizadas
+# Mejoras Implementadas
 
-## Implementación del Patrón Strategy para el Cálculo de Urgencia
+## Aplicación del Patrón Strategy para el Motor de Urgencia
 
-La principal mejora incorporada al sistema consiste en la refactorización del motor de cálculo de urgencia mediante la aplicación del patrón de diseño **Strategy**. En la versión desarrollada durante el TP2, todos los productos eran evaluados utilizando la misma lógica de reposición, sin considerar las diferencias de comportamiento comercial entre los distintos artículos de una ferretería.
+En el TP2, todos los productos eran evaluados mediante una única regla de negocio para determinar la urgencia de reposición. Esto provocaba que artículos con comportamientos comerciales muy diferentes recibieran exactamente la misma alerta.
 
-Esta situación generaba decisiones poco precisas, ya que productos de alta rotación y productos de baja rotación recibían exactamente las mismas alertas de reposición. Como consecuencia, podían producirse faltantes en artículos de gran demanda o compras innecesarias de productos costosos y de lenta salida.
+Por ejemplo, una caja de tornillos de alta rotación y una amoladora de baja rotación eran tratadas de la misma manera, generando reposiciones tardías en algunos casos y compras innecesarias en otros.
 
-Con la nueva implementación, el sistema selecciona dinámicamente una estrategia de cálculo según la categoría del producto:
+Para solucionar este problema se implementó el patrón de diseño **Strategy**, permitiendo que cada categoría de producto utilice una lógica de cálculo específica.
 
-- **Productos de alta rotación:** generan alertas más tempranas para evitar quiebres de stock.
-- **Productos de baja rotación:** toleran niveles menores de inventario antes de generar una alerta.
-- **Productos generales:** mantienen la lógica original del TP2 para garantizar compatibilidad con versiones anteriores.
+### Estrategias implementadas
 
-Esta solución mejora la precisión de las decisiones de compra y facilita la evolución futura del sistema, ya que nuevas categorías pueden agregarse sin modificar la lógica central.
+- **Alta Rotación:** la alerta ALTA se genera cuando el stock alcanza el mínimo definido.
+- **Baja Rotación:** la alerta ALTA se genera cuando el stock cae a un cuarto del mínimo.
+- **General:** mantiene el comportamiento original del TP2 para asegurar compatibilidad.
+
+### Beneficios
+
+- Mayor precisión en las decisiones de compra.
+- Reducción del riesgo de quiebre de stock.
+- Disminución del sobrestock en productos costosos.
+- Facilidad para agregar nuevas categorías sin modificar el código existente.
 
 ---
 
 ## Incorporación de Lectura por Código de Barras
 
-Se agregó un mecanismo de identificación de productos mediante códigos de barras EAN-13. En la versión anterior, el usuario debía buscar los productos manualmente, lo que incrementaba los tiempos de operación y la posibilidad de errores de carga.
+Se incorporó la lectura de códigos de barras EAN-13 para agilizar la identificación de productos.
 
-Con esta mejora, el sistema permite:
+En la versión anterior, el usuario debía buscar manualmente cada artículo, aumentando el tiempo de operación y la probabilidad de errores de carga.
 
-- Identificar productos de manera instantánea.
-- Actualizar movimientos de stock con mayor rapidez.
-- Reducir errores de tipeo.
-- Optimizar el trabajo del personal en el punto de venta.
+### Funcionalidades agregadas
 
-Además, se desarrolló un endpoint específico para la búsqueda de productos por código de barras, permitiendo integrar lectores físicos y automatizar el proceso de registro.
+- Búsqueda automática mediante scanner.
+- Identificación instantánea de productos.
+- Compatibilidad con ingreso manual y búsqueda mediante la tecla Enter.
+- Actualización rápida de movimientos de stock.
+
+### Beneficios
+
+- Reducción de errores de tipeo.
+- Mayor velocidad de atención al cliente.
+- Mejor experiencia de uso.
+- Mayor eficiencia operativa.
 
 ---
 
 ## Automatización de Órdenes de Compra
 
-Otra mejora significativa fue la automatización del proceso de generación de órdenes de compra.
+Se automatizó el proceso de generación de órdenes de compra cuando el sistema detecta la necesidad de reposición.
 
-Anteriormente, el encargado debía:
+Anteriormente, el encargado debía identificar los faltantes, confeccionar el pedido y enviarlo manualmente al proveedor.
 
-1. Detectar la necesidad de reposición.
-2. Elaborar manualmente el pedido.
-3. Contactar al proveedor.
-4. Registrar la operación.
+### Nuevo flujo
 
-Con la nueva funcionalidad, cuando el sistema detecta que un producto requiere reposición y el usuario confirma la acción, se ejecuta automáticamente el siguiente flujo:
+1. El sistema detecta la necesidad de reposición.
+2. El usuario confirma la acción.
+3. Se genera automáticamente una orden de compra en formato PDF.
+4. El sistema envía el documento por correo electrónico al proveedor.
+5. Se registra la operación en el sistema.
 
-- Generación de la orden de compra en formato PDF.
-- Obtención de los datos del proveedor.
-- Envío automático por correo electrónico.
-- Registro del proceso dentro del sistema.
+### Beneficios
 
-Esta automatización reduce tareas administrativas repetitivas, disminuye errores humanos y acelera significativamente el tiempo de respuesta ante faltantes de stock.
-
----
-
-## Mejoras en la Arquitectura del Sistema
-
-Las modificaciones implementadas también representan una mejora arquitectónica importante.
-
-La utilización del patrón **Strategy** permite:
-
-- Reducir el acoplamiento entre componentes.
-- Facilitar el mantenimiento del código.
-- Cumplir con el principio de Abierto/Cerrado (Open/Closed Principle).
-- Incorporar nuevas reglas de negocio sin alterar funcionalidades existentes.
-
-Gracias a esta estructura, el sistema se vuelve más escalable y preparado para futuras ampliaciones.
+- Menor carga administrativa.
+- Reducción de errores humanos.
+- Mayor rapidez en el proceso de compra.
+- Optimización de la gestión de reposición de stock.
 
 ---
 
-## Beneficios Obtenidos
+## Mejoras Arquitectónicas
 
-Las mejoras implementadas aportan ventajas tanto técnicas como operativas:
+La implementación del patrón Strategy permitió desacoplar la lógica de negocio y mejorar la estructura interna del sistema.
 
-- Mayor precisión en la gestión de inventario.
-- Reducción del riesgo de quiebre de stock.
-- Disminución del sobrestock en productos de baja rotación.
-- Menor tiempo de carga de información.
-- Eliminación de errores manuales.
-- Automatización de procesos administrativos.
-- Mayor mantenibilidad y escalabilidad del software.
-- Mejor adaptación a contextos económicos con alta variación de precios.
+### Ventajas obtenidas
 
-En conjunto, estas mejoras transforman al sistema de un simple gestor de inventario en una herramienta inteligente capaz de asistir activamente en la toma de decisiones de compra y reposición dentro de la ferretería.
+- Código más mantenible.
+- Mayor escalabilidad.
+- Menor acoplamiento entre componentes.
+- Cumplimiento del principio Open/Closed.
+- Incorporación sencilla de nuevas reglas de negocio.
+
+---
+
+## Resultados Obtenidos
+
+Las mejoras implementadas permiten que el sistema:
+
+- Detecte con mayor precisión cuándo reponer productos.
+- Registre movimientos de stock de forma más rápida.
+- Automatice la comunicación con proveedores.
+- Reduzca errores operativos.
+- Mejore la gestión del inventario.
+- Facilite futuras ampliaciones del software.
+
+En conjunto, estas mejoras transforman el sistema de un simple gestor de inventario en una herramienta capaz de asistir activamente en la toma de decisiones de compra y reposición dentro de la ferretería.
