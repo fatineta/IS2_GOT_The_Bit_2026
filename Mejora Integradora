@@ -1,1 +1,84 @@
+# Mejoras Realizadas
 
+## Implementación del Patrón Strategy para el Cálculo de Urgencia
+
+La principal mejora incorporada al sistema consiste en la refactorización del motor de cálculo de urgencia mediante la aplicación del patrón de diseño **Strategy**. En la versión desarrollada durante el TP2, todos los productos eran evaluados utilizando la misma lógica de reposición, sin considerar las diferencias de comportamiento comercial entre los distintos artículos de una ferretería.
+
+Esta situación generaba decisiones poco precisas, ya que productos de alta rotación y productos de baja rotación recibían exactamente las mismas alertas de reposición. Como consecuencia, podían producirse faltantes en artículos de gran demanda o compras innecesarias de productos costosos y de lenta salida.
+
+Con la nueva implementación, el sistema selecciona dinámicamente una estrategia de cálculo según la categoría del producto:
+
+- **Productos de alta rotación:** generan alertas más tempranas para evitar quiebres de stock.
+- **Productos de baja rotación:** toleran niveles menores de inventario antes de generar una alerta.
+- **Productos generales:** mantienen la lógica original del TP2 para garantizar compatibilidad con versiones anteriores.
+
+Esta solución mejora la precisión de las decisiones de compra y facilita la evolución futura del sistema, ya que nuevas categorías pueden agregarse sin modificar la lógica central.
+
+---
+
+## Incorporación de Lectura por Código de Barras
+
+Se agregó un mecanismo de identificación de productos mediante códigos de barras EAN-13. En la versión anterior, el usuario debía buscar los productos manualmente, lo que incrementaba los tiempos de operación y la posibilidad de errores de carga.
+
+Con esta mejora, el sistema permite:
+
+- Identificar productos de manera instantánea.
+- Actualizar movimientos de stock con mayor rapidez.
+- Reducir errores de tipeo.
+- Optimizar el trabajo del personal en el punto de venta.
+
+Además, se desarrolló un endpoint específico para la búsqueda de productos por código de barras, permitiendo integrar lectores físicos y automatizar el proceso de registro.
+
+---
+
+## Automatización de Órdenes de Compra
+
+Otra mejora significativa fue la automatización del proceso de generación de órdenes de compra.
+
+Anteriormente, el encargado debía:
+
+1. Detectar la necesidad de reposición.
+2. Elaborar manualmente el pedido.
+3. Contactar al proveedor.
+4. Registrar la operación.
+
+Con la nueva funcionalidad, cuando el sistema detecta que un producto requiere reposición y el usuario confirma la acción, se ejecuta automáticamente el siguiente flujo:
+
+- Generación de la orden de compra en formato PDF.
+- Obtención de los datos del proveedor.
+- Envío automático por correo electrónico.
+- Registro del proceso dentro del sistema.
+
+Esta automatización reduce tareas administrativas repetitivas, disminuye errores humanos y acelera significativamente el tiempo de respuesta ante faltantes de stock.
+
+---
+
+## Mejoras en la Arquitectura del Sistema
+
+Las modificaciones implementadas también representan una mejora arquitectónica importante.
+
+La utilización del patrón **Strategy** permite:
+
+- Reducir el acoplamiento entre componentes.
+- Facilitar el mantenimiento del código.
+- Cumplir con el principio de Abierto/Cerrado (Open/Closed Principle).
+- Incorporar nuevas reglas de negocio sin alterar funcionalidades existentes.
+
+Gracias a esta estructura, el sistema se vuelve más escalable y preparado para futuras ampliaciones.
+
+---
+
+## Beneficios Obtenidos
+
+Las mejoras implementadas aportan ventajas tanto técnicas como operativas:
+
+- Mayor precisión en la gestión de inventario.
+- Reducción del riesgo de quiebre de stock.
+- Disminución del sobrestock en productos de baja rotación.
+- Menor tiempo de carga de información.
+- Eliminación de errores manuales.
+- Automatización de procesos administrativos.
+- Mayor mantenibilidad y escalabilidad del software.
+- Mejor adaptación a contextos económicos con alta variación de precios.
+
+En conjunto, estas mejoras transforman al sistema de un simple gestor de inventario en una herramienta inteligente capaz de asistir activamente en la toma de decisiones de compra y reposición dentro de la ferretería.
